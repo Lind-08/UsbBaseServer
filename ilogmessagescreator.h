@@ -1,6 +1,6 @@
 #pragma once
 #include <QObject>
-class LogMessage;
+#include "logmessage.h"
 
 class ILogMessagesCreator
 {

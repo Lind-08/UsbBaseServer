@@ -1,4 +1,10 @@
-#ifndef ILOGMESSAGESRECIEVER_H
-#define ILOGMESSAGESRECIEVER_H
+#pragma once
 
-#endif // ILOGMESSAGESRECIEVER_H
+#include <QObject>
+#include "logmessage.h"
+
+class ILogMessagesReciever
+{
+public:
+    Q_SLOT virtual void onLogMessage(LogMessage message) = 0;
+};

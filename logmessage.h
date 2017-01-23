@@ -1,7 +1,7 @@
 #pragma once
-class QObject;
+#include <QObject>
+#include <QDateTime>
 class QString;
-class QDateTime;
 
 class LogMessage : public QObject
 {
@@ -13,10 +13,13 @@ class LogMessage : public QObject
     QString message;
     QDateTime timestamp;
 
-    explicit LogMessage(QString Message, QDateTime timestamp, QObject *parent = 0);
+    LogMessage(QString Message, QDateTime timestamp, QObject *parent = 0);
 
 public:
     static LogMessage Create(QString Message);
+
+    LogMessage(LogMessage&&);
+    LogMessage(const LogMessage &);
 
     inline QString Message()
     {

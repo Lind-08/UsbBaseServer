@@ -13,9 +13,9 @@ SOURCES += main.cpp \
     usbbaseserver.cpp \
     usbinfo.cpp \
     usbinforepository.cpp \
-    myserver.cpp \
     logmessage.cpp \
-    clienthandler.cpp
+    clienthandler.cpp \
+    consoleoutlogger.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -32,7 +32,8 @@ HEADERS += \
     usbbaseserver.h \
     usbinfo.h \
     usbinforepository.h \
-    myserver.h \
     ilogmessagescreator.h \
     logmessage.h \
-    clienthandler.h
+    clienthandler.h \
+    ilogmessagesreciever.h \
+    consoleoutlogger.h

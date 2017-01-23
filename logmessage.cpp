@@ -3,12 +3,31 @@
 
 LogMessage LogMessage::Create(QString Message)
 {
-    return LogMessage(Message, QDateTime::currentDateTime());
+    LogMessage message(Message, QDateTime::currentDateTime());
+    return message;
 }
 
-LogMessage::LogMessage(QString Message, QDateTime Timestamp, QObject *parent)
+LogMessage::LogMessage(LogMessage &&msg):
+    QObject(msg.parent()),
+    message(msg.message),
+    timestamp(msg.timestamp)
 {
-    message = Message;
-    timestamp = Timestamp;
+    msg.deleteLater();
+}
+
+LogMessage::LogMessage(const LogMessage &msg):
+    QObject(msg.parent()),
+    message(msg.message),
+    timestamp(msg.timestamp)
+{
+
+}
+
+LogMessage::LogMessage(QString Message, QDateTime Timestamp, QObject *parent):
+    QObject(parent),
+    message(Message),
+    timestamp(Timestamp)
+{
+
 }
 
