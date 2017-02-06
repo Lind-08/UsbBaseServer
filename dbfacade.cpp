@@ -21,7 +21,10 @@ void DbFacade::InitDbFacade(QString Driver, QString DbName)
 
 DbFacade *DbFacade::Instance()
 {
-    throw std::runtime_error("Not initialized dbfacade");
+    if (instance == nullptr)
+        throw std::runtme_error("Not initialized dbfacade");
+    else
+        return instance;
 }
 
 QSqlQuery *DbFacade::CreateQuery()

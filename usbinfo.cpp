@@ -12,6 +12,11 @@ UsbInfo* UsbInfo::Create(QObject *parent)
     return info;
 }
 
+void UsbInfo::setID(const qint32 ID)
+{
+    id = ID;
+}
+
 void UsbInfo::setVID(const QString VID)
 {
     vid = VID;
