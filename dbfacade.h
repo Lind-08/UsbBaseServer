@@ -15,7 +15,7 @@ class DbFacade : public QObject
     static DbFacade *instance;
 public:
     static void InitDbFacade(QString Driver = "QSQLITE", QString DbName = "test.sqlite");
-    DbFacade *Instance();
+    static DbFacade *Instance();
     QSqlQuery *CreateQuery();
 signals:
 

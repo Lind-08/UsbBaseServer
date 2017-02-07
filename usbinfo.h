@@ -20,6 +20,7 @@ class UsbInfo : public QObject
 public:
     static UsbInfo* Create(QObject *parent = 0);
 
+    static const int INVALID_ID = -1;
 
     void setID(const qint32 ID);
     inline qint32 ID()

@@ -7,6 +7,9 @@ class UsbInfoRepository : public QObject, IRepository<UsbInfo>
 {
     Q_OBJECT
 
+    const QString TABLE_NAME = "usb";
+
+
     static UsbInfoRepository *instance;
 //    void create();
 //    void update();

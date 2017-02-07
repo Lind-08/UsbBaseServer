@@ -1,6 +1,7 @@
 #include "dbfacade.h"
 #include <QSqlQuery>
 #include <QSqlDatabase>
+#include <stdexcept>
 
 DbFacade *DbFacade::instance = nullptr;
 
@@ -22,7 +23,7 @@ void DbFacade::InitDbFacade(QString Driver, QString DbName)
 DbFacade *DbFacade::Instance()
 {
     if (instance == nullptr)
-        throw std::runtme_error("Not initialized dbfacade");
+        throw std::runtime_error("Not initialized dbfacade");
     else
         return instance;
 }

@@ -5,7 +5,7 @@ template<typename T>
 class IRepository
 {
 public:
-    virtual QList<T> GetAll() = 0;
+    virtual QList<T*> GetAll() = 0;
     virtual void Save(T* object) = 0;
     virtual void Delete(T* object) = 0;
 };
