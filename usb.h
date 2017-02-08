@@ -1,7 +1,7 @@
 #pragma once
 #include <QObject>
 
-class UsbInfo : public QObject
+class Usb : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(qint32 ID READ ID WRITE setID)
@@ -16,9 +16,9 @@ class UsbInfo : public QObject
     QString serial;
     QString name;
 
-    explicit UsbInfo(QObject *parent = 0);
+    explicit Usb(QObject *parent = 0);
 public:
-    static UsbInfo* Create(QObject *parent = 0);
+    static Usb* Create(QObject *parent = 0);
 
     static const int INVALID_ID = -1;
 

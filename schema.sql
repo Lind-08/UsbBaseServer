@@ -17,9 +17,9 @@ CREATE TABLE usb (
 CREATE TABLE rules (
     id      INTEGER PRIMARY KEY AUTOINCREMENT
                     NOT NULL,
+    usb_id  INTEGER REFERENCES usb (id) ON DELETE CASCADE
+                                        ON UPDATE CASCADE,
     host_id INTEGER REFERENCES host (id) ON DELETE CASCADE
                                          ON UPDATE CASCADE,
-    usb_id  INTEGER REFERENCES usb (VID) ON DELETE CASCADE
-                                         ON UPDATE CASCADE,
-    value   BOOLEAN DEFAULT FALSE
+    access  BOOLEAN DEFAULT FALSE
 );

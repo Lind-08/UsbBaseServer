@@ -1,39 +1,39 @@
-#include "usbinfo.h"
+#include "usb.h"
 
 
-UsbInfo::UsbInfo(QObject *parent) : QObject(parent)
+Usb::Usb(QObject *parent) : QObject(parent)
 {
 
 }
 
-UsbInfo* UsbInfo::Create(QObject *parent)
+Usb* Usb::Create(QObject *parent)
 {
-    UsbInfo *info = new UsbInfo(parent);
-    info->id = UsbInfo::INVALID_ID;
+    Usb *info = new Usb(parent);
+    info->id = Usb::INVALID_ID;
     return info;
 }
 
-void UsbInfo::setID(const qint32 ID)
+void Usb::setID(const qint32 ID)
 {
     id = ID;
 }
 
-void UsbInfo::setVID(const QString VID)
+void Usb::setVID(const QString VID)
 {
     vid = VID;
 }
 
-void UsbInfo::setPID(const QString PID)
+void Usb::setPID(const QString PID)
 {
     pid = PID;
 }
 
-void UsbInfo::setSerial(const QString Serial)
+void Usb::setSerial(const QString Serial)
 {
     serial = Serial;
 }
 
-void UsbInfo::setName(const QString Name)
+void Usb::setName(const QString Name)
 {
     name = Name;
 }

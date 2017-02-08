@@ -1,5 +1,5 @@
-#include "usbinforepository.h"
-#include "usbinfo.h"
+#include "usbrepository.h"
+#include "usb.h"
 #include "dbfacade.h"
 #include <QSqlQuery>
 #include <QSqlError>
@@ -8,30 +8,70 @@
 #include <stdexcept>
 #include <QSqlRecord>
 
-UsbInfoRepository* UsbInfoRepository::instance = nullptr;
+UsbRepository* UsbRepository::instance = nullptr;
 
-UsbInfoRepository::UsbInfoRepository(QObject *parent) : QObject(parent)
+
+UsbRepository::UsbRepository(QObject *parent) : QObject(parent)
 {
 
 }
 
-UsbInfoRepository *UsbInfoRepository::Instance()
+UsbRepository *UsbRepository::Instance()
 {
     if (instance == nullptr)
-        instance = new UsbInfoRepository();
+        instance = new UsbRepository();
     return instance;
 }
 
-QList<UsbInfo *> UsbInfoRepository::GetAll()
+void UsbRepository::execQuery(QString queryString)
+{
+    auto db = DbFacade::Instance();
+    QSqlQuery *query = db->CreateQuery();
+    if(!query->exec(queryString))
+    {
+        throw std::runtime_error(query->lastError().text().toStdString());
+    }
+}
+
+void UsbRepository::create(Usb *object)
+{
+    execQuery(INSERT_QUERY_STRING.arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name()));
+    object->setID(getIdAfterInsert());
+}
+
+void UsbRepository::update(Usb *object)
+{
+    execQuery(UPDATE_QUERY_STRING.arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name()).arg(object->ID()));
+}
+
+int UsbRepository::getIdAfterInsert()
+{
+    auto db = DbFacade::Instance();
+    QSqlQuery *query = db->CreateQuery();
+    QString queryString = QString("SELECT id FROM %1;").arg(TABLE_NAME);
+    if (!query->exec(queryString))
+    {
+       query->last();
+       auto rec = query->record();
+       return query->value(rec.indexOf("id")).toInt();
+    }
+    else
+    {
+        throw std::runtime_error(query->lastError().text().toStdString());
+    }
+}
+
+
+QList<Usb *> UsbRepository::GetAll()
 {
     auto db = DbFacade::Instance();
     QSqlQuery *query = db->CreateQuery();
     if (query->exec("Select * from usb;"))
         throw std::runtime_error(query->lastError().text().toStdString());
-    QList<UsbInfo*> result;
+    QList<Usb*> result;
     do
     {
-        UsbInfo *obj = UsbInfo::Create();
+        Usb *obj = Usb::Create();
         obj->setID(query->value(0).toInt());
         obj->setVID(query->value(1).toString());
         obj->setPID(query->value(2).toString());
@@ -42,45 +82,19 @@ QList<UsbInfo *> UsbInfoRepository::GetAll()
     return result;
 }
 
-void UsbInfoRepository::Save(UsbInfo *object)
+void UsbRepository::Save(Usb *object)
 {
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
-    QString queryString;
-    bool result;
-    if (object->ID() == UsbInfo::INVALID_ID)
+    if (object->ID() == Usb::INVALID_ID)
     {
-        queryString = QString("INSERT INTO %1 (VID, PID, serial, name) VALUES ('%2','%3', '%4', '%5');")\
-            .arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name());
-        result = query->exec(queryString);
-        if (result)
-        {
-            queryString = QString("SELECT id FROM %1;").arg(TABLE_NAME);
-            result = query->exec(queryString);
-            if (result)
-            {
-               query->last();
-               auto rec = query->record();
-               object->setID(query->value(rec.indexOf("id")).toInt());
-            }
-        }
+        create(object);
     }
     else
     {
-        queryString = QString("UPDATE %1 SET VID='%2', PID='%3', serial='%4', name='%5' where id=%6;")\
-            .arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name()).arg(object->ID());
-        result = query->exec(queryString);
+        update(object);
     }
-    if (!result)
-        throw std::runtime_error(query->lastError().text().toStdString());
 }
 
-void UsbInfoRepository::Delete(UsbInfo *object)
+void UsbRepository::Delete(Usb *object)
 {
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
-    QString queryString = QString("DELETE FROM %1 WHERE id=%2;")\
-            .arg(TABLE_NAME).arg(object->ID());
-    if (!query->exec(queryString))
-        throw std::runtime_error(query->lastError().text().toStdString());
+    execQuery(QString("DELETE FROM %1 WHERE id=%2;").arg(TABLE_NAME).arg(object->ID()));
 }

@@ -11,12 +11,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     usbbaseserver.cpp \
-    usbinfo.cpp \
-    usbinforepository.cpp \
     logmessage.cpp \
     clienthandler.cpp \
     consoleoutlogger.cpp \
-    dbfacade.cpp
+    dbfacade.cpp \
+    usbrepository.cpp \
+    usb.cpp \
+    host.cpp \
+    hostrepository.cpp \
+    rule.cpp \
+    rulerepository.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -31,12 +35,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS += \
     usbbaseserver.h \
-    usbinfo.h \
-    usbinforepository.h \
     ilogmessagescreator.h \
     logmessage.h \
     clienthandler.h \
     ilogmessagesreciever.h \
     consoleoutlogger.h \
     irepository.h \
-    dbfacade.h
+    dbfacade.h \
+    usbrepository.h \
+    usb.h \
+    host.h \
+    hostrepository.h \
+    rule.h \
+    rulerepository.h

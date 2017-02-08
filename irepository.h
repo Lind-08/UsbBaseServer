@@ -10,3 +10,4 @@ public:
     virtual void Delete(T* object) = 0;
 };
 
+//TODO: Попробовать создать базовый класс для репозиториев
