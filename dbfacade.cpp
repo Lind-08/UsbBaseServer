@@ -10,7 +10,8 @@ DbFacade::DbFacade( QString Driver, QString DbName, QObject *parent) :
     driver(Driver),
     dbName(DbName)
 {
-    db = QSqlDatabase::addDatabase(driver, dbName);
+    db = QSqlDatabase::addDatabase(driver);
+    db.setDatabaseName(dbName);
     if (!db.open())
         throw std::runtime_error("Can't open db.");
 }
@@ -30,6 +31,7 @@ DbFacade *DbFacade::Instance()
 
 QSqlQuery *DbFacade::CreateQuery()
 {
+    db = QSqlDatabase::database();
     QSqlQuery *query = new QSqlQuery(db);
     return query;
 }

@@ -6,6 +6,7 @@
 #include <QException>
 #include <QVariant>
 #include <stdexcept>
+#include <QSqlRecord>
 
 UsbInfoRepository* UsbInfoRepository::instance = nullptr;
 
@@ -46,19 +47,31 @@ void UsbInfoRepository::Save(UsbInfo *object)
     auto db = DbFacade::Instance();
     QSqlQuery *query = db->CreateQuery();
     QString queryString;
+    bool result;
     if (object->ID() == UsbInfo::INVALID_ID)
     {
-        queryString = QString("INSERT INTO %1 (VID, PID, serial, name,) VALUES('%2','%3', '%4', '%5');")\
+        queryString = QString("INSERT INTO %1 (VID, PID, serial, name) VALUES ('%2','%3', '%4', '%5');")\
             .arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name());
-        //TODO: Добавить изменение индекса после сохранения
-        //select top 1 * from dbo.tbTest order by id desc
+        result = query->exec(queryString);
+        if (result)
+        {
+            queryString = QString("SELECT id FROM %1;").arg(TABLE_NAME);
+            result = query->exec(queryString);
+            if (result)
+            {
+               query->last();
+               auto rec = query->record();
+               object->setID(query->value(rec.indexOf("id")).toInt());
+            }
+        }
     }
     else
     {
         queryString = QString("UPDATE %1 SET VID='%2', PID='%3', serial='%4', name='%5' where id=%6;")\
             .arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name()).arg(object->ID());
+        result = query->exec(queryString);
     }
-    if (query->exec(queryString))
+    if (!result)
         throw std::runtime_error(query->lastError().text().toStdString());
 }
 
@@ -66,8 +79,8 @@ void UsbInfoRepository::Delete(UsbInfo *object)
 {
     auto db = DbFacade::Instance();
     QSqlQuery *query = db->CreateQuery();
-    QString queryString = QString("DELET FROM %1 WHERE id=%2;")\
+    QString queryString = QString("DELETE FROM %1 WHERE id=%2;")\
             .arg(TABLE_NAME).arg(object->ID());
-    if (query->exec(queryString))
+    if (!query->exec(queryString))
         throw std::runtime_error(query->lastError().text().toStdString());
 }

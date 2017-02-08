@@ -18,7 +18,7 @@ protected:
     explicit UsbInfoRepository(QObject *parent = 0);
 
 public:
-    UsbInfoRepository *Instance();
+    static UsbInfoRepository *Instance();
     QList<UsbInfo*> GetAll();
     void Save(UsbInfo *object);
     void Delete(UsbInfo *object);

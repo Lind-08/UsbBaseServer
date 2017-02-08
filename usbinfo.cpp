@@ -9,6 +9,7 @@ UsbInfo::UsbInfo(QObject *parent) : QObject(parent)
 UsbInfo* UsbInfo::Create(QObject *parent)
 {
     UsbInfo *info = new UsbInfo(parent);
+    info->id = UsbInfo::INVALID_ID;
     return info;
 }
 
