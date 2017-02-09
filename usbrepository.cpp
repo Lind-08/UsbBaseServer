@@ -7,11 +7,29 @@
 #include <QVariant>
 #include <stdexcept>
 #include <QSqlRecord>
+#include "usb.h"
 
 UsbRepository* UsbRepository::instance = nullptr;
 
 
-UsbRepository::UsbRepository(QObject *parent) : QObject(parent)
+QString UsbRepository::getInsertQuery(Usb *object)
+{
+    return INSERT_QUERY_STRING.arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name());
+}
+
+QString UsbRepository::getUpdateQuery(Usb *object)
+{
+    return UPDATE_QUERY_STRING.arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name()).arg(object->ID());
+}
+
+QString UsbRepository::getDeleteQuery(Usb *object)
+{
+    return DELETE_QUERY_STRING.arg(TABLE_NAME).arg(object->ID());
+}
+
+UsbRepository::UsbRepository(QObject *parent) :
+    QObject(parent),
+    Parent()
 {
 
 }
@@ -23,7 +41,7 @@ UsbRepository *UsbRepository::Instance()
     return instance;
 }
 
-void UsbRepository::execQuery(QString queryString)
+/*void UsbRepository::execQuery(QString queryString)
 {
     auto db = DbFacade::Instance();
     QSqlQuery *query = db->CreateQuery();
@@ -31,20 +49,20 @@ void UsbRepository::execQuery(QString queryString)
     {
         throw std::runtime_error(query->lastError().text().toStdString());
     }
-}
+}*/
 
-void UsbRepository::create(Usb *object)
+/*void UsbRepository::create(Usb *object)
 {
     execQuery(INSERT_QUERY_STRING.arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name()));
-    object->setID(getIdAfterInsert());
-}
 
-void UsbRepository::update(Usb *object)
+}*/
+
+/*void UsbRepository::update(Usb *object)
 {
     execQuery(UPDATE_QUERY_STRING.arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name()).arg(object->ID()));
-}
+}*/
 
-int UsbRepository::getIdAfterInsert()
+/*int UsbRepository::getIdAfterInsert()
 {
     auto db = DbFacade::Instance();
     QSqlQuery *query = db->CreateQuery();
@@ -59,7 +77,7 @@ int UsbRepository::getIdAfterInsert()
     {
         throw std::runtime_error(query->lastError().text().toStdString());
     }
-}
+}*/
 
 
 QList<Usb *> UsbRepository::GetAll()
@@ -87,6 +105,7 @@ void UsbRepository::Save(Usb *object)
     if (object->ID() == Usb::INVALID_ID)
     {
         create(object);
+        object->setID(getIdAfterInsert());
     }
     else
     {
@@ -96,5 +115,6 @@ void UsbRepository::Save(Usb *object)
 
 void UsbRepository::Delete(Usb *object)
 {
-    execQuery(QString("DELETE FROM %1 WHERE id=%2;").arg(TABLE_NAME).arg(object->ID()));
+    if (object->ID() != Usb::INVALID_ID)
+        remove(object);
 }

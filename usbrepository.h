@@ -1,10 +1,12 @@
 #pragma once
 #include <QObject>
-#include "irepository.h"
+#include "basesqlrepository.h"
 class Usb;
 
-class UsbRepository : public QObject, IRepository<Usb>
+class UsbRepository : public QObject, BaseSqlRepository<Usb>
 {
+    typedef BaseSqlRepository<Usb> Parent;
+
     Q_OBJECT
 
     const QString TABLE_NAME = "usb";
@@ -13,13 +15,18 @@ class UsbRepository : public QObject, IRepository<Usb>
     const QString UPDATE_QUERY_STRING = "UPDATE %1 SET VID='%2', PID='%3', serial='%4', name='%5' where id=%6;";
     const QString DELETE_QUERY_STRING = "DELETE FROM %1 WHERE id=%2;";
 
-    static UsbRepository *instance;
-    void execQuery(QString queryString);
+    QString getInsertQuery(Usb *object);
+    QString getUpdateQuery(Usb *object);
+    QString getDeleteQuery(Usb *object);
 
-    int getIdAfterInsert();
-    void create(Usb *object);
-    void update(Usb *object);
-    void remove(Usb *object);
+
+    static UsbRepository *instance;
+    //void execQuery(QString queryString);
+
+    //int getIdAfterInsert();
+    //void create(Usb *object);
+    //void update(Usb *object);
+    //void remove(Usb *object);
 protected:
     explicit UsbRepository(QObject *parent = 0);
 

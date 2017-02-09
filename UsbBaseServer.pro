@@ -47,4 +47,8 @@ HEADERS += \
     host.h \
     hostrepository.h \
     rule.h \
-    rulerepository.h
+    rulerepository.h \
+    basesqlrepository.h
+
+DISTFILES += \
+    schema.sql

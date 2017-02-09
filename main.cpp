@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     QObject::connect(server, &UsbBaseServer::logMessage, logger, &ConsoleOutLogger::onLogMessage);
     try
     {
-        DbFacade::InitDbFacade("QSQLITE", "D:\\usb_db.sqlite");
+        DbFacade::InitDbFacade("QSQLITE", "E:\\test\\usb_db.sqlite");
     }
     catch (std::exception &e)
     {

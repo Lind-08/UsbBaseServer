@@ -21,5 +21,5 @@ CREATE TABLE rules (
                                         ON UPDATE CASCADE,
     host_id INTEGER REFERENCES host (id) ON DELETE CASCADE
                                          ON UPDATE CASCADE,
-    access  BOOLEAN DEFAULT FALSE
+    value  BOOLEAN DEFAULT FALSE
 );
