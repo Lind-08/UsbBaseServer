@@ -4,13 +4,14 @@
 #include <stdexcept>
 
 DbFacade *DbFacade::instance = nullptr;
+QString DbFacade::driver;
+QString DbFacade::dbName;
 
-DbFacade::DbFacade( QString Driver, QString DbName, QObject *parent) :
-    QObject(parent),
-    driver(Driver),
-    dbName(DbName)
+
+DbFacade::DbFacade(QObject *parent) :
+    QObject(parent)
 {
-    db = QSqlDatabase::addDatabase(driver);
+    db = QSqlDatabase::addDatabase(driver, "usb_db");
     db.setDatabaseName(dbName);
     if (!db.open())
         throw std::runtime_error("Can't open db.");
@@ -18,7 +19,9 @@ DbFacade::DbFacade( QString Driver, QString DbName, QObject *parent) :
 
 void DbFacade::InitDbFacade(QString Driver, QString DbName)
 {
-    instance = new DbFacade(Driver, DbName);
+    driver = Driver;
+    dbName = DbName;
+    instance = new DbFacade();
 }
 
 DbFacade *DbFacade::Instance()
@@ -31,7 +34,12 @@ DbFacade *DbFacade::Instance()
 
 QSqlQuery *DbFacade::CreateQuery()
 {
-    db = QSqlDatabase::database();
+    db = QSqlDatabase::database("usb_db");
+    if (!db.isOpen())
+    {
+        if (!db.open())
+            throw std::runtime_error("Can't open db.");
+    }
     QSqlQuery *query = new QSqlQuery(db);
     return query;
 }

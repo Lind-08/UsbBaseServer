@@ -11,6 +11,12 @@
 
 UsbRepository* UsbRepository::instance = nullptr;
 
+UsbRepository::UsbRepository(QObject *parent) :
+    QObject(parent),
+    Parent()
+{
+
+}
 
 QString UsbRepository::getInsertQuery(Usb *object)
 {
@@ -27,12 +33,11 @@ QString UsbRepository::getDeleteQuery(Usb *object)
     return DELETE_QUERY_STRING.arg(TABLE_NAME).arg(object->ID());
 }
 
-UsbRepository::UsbRepository(QObject *parent) :
-    QObject(parent),
-    Parent()
+QString UsbRepository::getQueryForID()
 {
-
+    return Parent::GET_ID_QUERY.arg(TABLE_NAME);
 }
+
 
 UsbRepository *UsbRepository::Instance()
 {
@@ -84,7 +89,7 @@ QList<Usb *> UsbRepository::GetAll()
 {
     auto db = DbFacade::Instance();
     QSqlQuery *query = db->CreateQuery();
-    if (query->exec("Select * from usb;"))
+    if (query->exec(getQueryForID()))
         throw std::runtime_error(query->lastError().text().toStdString());
     QList<Usb*> result;
     do

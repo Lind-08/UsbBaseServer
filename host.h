@@ -1,17 +1,17 @@
-#ifndef HOST_H
-#define HOST_H
-
+#pragma once
+#include "property.h"
 #include <QObject>
 
 class Host : public QObject
 {
     Q_OBJECT
-public:
+    PROPERTY_GS(qint32, ID, id)
+    PROPERTY_GS(QString, Secret, secret)
+    PROPERTY_GS(QString, Name, name)
+private:
     explicit Host(QObject *parent = 0);
-
-signals:
-
-public slots:
+public:
+    static Host *Create(QObject *parent = 0);
+    static const int INVALID_ID = -1;
 };
 
-#endif // HOST_H

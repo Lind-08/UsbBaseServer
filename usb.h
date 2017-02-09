@@ -52,10 +52,6 @@ public:
     {
         return name;
     }
-
-signals:
-
-public slots:
 };
 
 

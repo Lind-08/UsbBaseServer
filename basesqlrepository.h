@@ -11,11 +11,12 @@ template <class T>
 class BaseSqlRepository : public IRepository<T>
 {
 protected:
-    const QString TABLE_NAME;
+    const QString GET_ID_QUERY = "SELECT * FROM %1";
 
     virtual QString getInsertQuery(T *object) = 0;
     virtual QString getUpdateQuery(T *object) = 0;
     virtual QString getDeleteQuery(T *object) = 0;
+    virtual QString getQueryForID() = 0;
 
     void execQuery(QString queryString);
 
@@ -58,15 +59,18 @@ int BaseSqlRepository<T>::getIdAfterInsert()
 {
     auto db = DbFacade::Instance();
     QSqlQuery *query = db->CreateQuery();
-    QString queryString = QString("SELECT id FROM %1 ORDER BY id DESC;").arg(TABLE_NAME);
-    if (!query->exec(queryString))
+    QString queryString = getQueryForID();
+    if (query->exec(queryString))
     {
-       auto rec = query->record();
-       return query->value(rec.indexOf("id")).toInt();
+       query->last();
+       int result = query->value(0).toInt();
+       return result;
     }
     else
     {
-        throw std::runtime_error(query->lastError().text().toStdString());
+        QString error = query->lastError().text();
+        delete query;
+        throw std::runtime_error(error.toStdString());
     }
 }
 
