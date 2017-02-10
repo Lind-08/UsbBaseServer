@@ -41,7 +41,7 @@ QList<Rule *> RuleRepository::GetAll()
 {
     auto db = DbFacade::Instance();
     QSqlQuery *query = db->CreateQuery();
-    if (query->exec(getQueryForID()))
+    if (!query->exec(getQueryForID()))
         throw std::runtime_error(query->lastError().text().toStdString());
     QList<Rule*> result;
     do

@@ -89,7 +89,7 @@ QList<Usb *> UsbRepository::GetAll()
 {
     auto db = DbFacade::Instance();
     QSqlQuery *query = db->CreateQuery();
-    if (query->exec(getQueryForID()))
+    if (!query->exec(getQueryForID()))
         throw std::runtime_error(query->lastError().text().toStdString());
     QList<Usb*> result;
     do
@@ -100,7 +100,10 @@ QList<Usb *> UsbRepository::GetAll()
         obj->setPID(query->value(2).toString());
         obj->setSerial(query->value(3).toString());
         obj->setName(query->value(4).toString());
-        result.push_back(obj);
+        if (obj->ID() != 0)
+        {
+            result.push_back(obj);
+        }
     } while(query->next());
     return result;
 }
