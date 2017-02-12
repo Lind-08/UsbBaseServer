@@ -5,6 +5,8 @@
 #include <QJsonObject>
 #include <QTextStream>
 #include <QMutex>
+#include "hostrepository.h"
+#include "host.h"
 
 
 ClientHandler::ClientHandler(QTcpSocket *ClientSocket, QObject *parent):
@@ -47,13 +49,39 @@ void ClientHandler::sendClient(QJsonObject answer)
     stream << doc.toJson();
 }
 
+QJsonObject ClientHandler::authentiate(QJsonObject request)
+{
+    QJsonObject answer;
+    auto rep = HostRepository::Instance();
+    auto host = rep->GetBySecret(request["secret"]);
+    if (host->ID() == Host::INVALID_ID)
+    {
+        answer["code"] = tr("ERROR_AUTH");
+        answer["msg"] = tr("Unknown host");
+    }
+    else
+    {
+        answer["code"] = tr("SUCCES");
+    }
+}
+
 void ClientHandler::processRequest(QJsonObject request)
 {
     QJsonObject answer;
     answer["id"] = tr("server");
     if (request["code"] == "HELLO")
     {
-        answer["code"] = tr("SUCCESS");
+        answer = authentiate(request);
+        if (answer["code"] != tr("SUCCES"))
+        {
+            sendClient(answer);
+            emit clientDisconnected();
+        }
+    }
+    else
+    if (request["code"] == "GET_RULE")
+    {
+
     }
     else
     {

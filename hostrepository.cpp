@@ -74,3 +74,19 @@ void HostRepository::Delete(Host *object)
         remove(object);
 }
 
+Host *HostRepository::GetBySecret(QString secret)
+{
+    QString queryString = QString("SELECT * FROM %1 WHERE seret = '%2';").arg(TABLE_NAME).arg(secret);
+    auto db = DbFacade::Instance();
+    QSqlQuery *query = db->CreateQuery();
+    if (!query->exec(getQueryForID()))
+        throw std::runtime_error(query->lastError().text().toStdString());
+    Host *obj = Host::Create();
+    if (query->size() == 0)
+        return obj;
+    obj->setID(query->value(0).toInt());
+    obj->setSecret(query->value(1).toString());
+    obj->setName(query->value(2).toString());
+    return obj;
+}
+

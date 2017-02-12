@@ -28,5 +28,6 @@ public:
     QList<Host *> GetAll();
     void Save(Host *object);
     void Delete(Host *object);
+    Host *GetBySecret(QString secret);
 };
 
