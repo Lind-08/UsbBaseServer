@@ -10,7 +10,6 @@ class Rule : public QObject
     PROPERTY_GS(quint32, Host_ID, host_id)
     PROPERTY_GS(bool, Value, value)
 
-
     explicit Rule(QObject *parent = 0);
 public:
     static Rule *Create(QObject *parent = 0);

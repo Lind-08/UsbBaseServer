@@ -46,45 +46,6 @@ UsbRepository *UsbRepository::Instance()
     return instance;
 }
 
-/*void UsbRepository::execQuery(QString queryString)
-{
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
-    if(!query->exec(queryString))
-    {
-        throw std::runtime_error(query->lastError().text().toStdString());
-    }
-}*/
-
-/*void UsbRepository::create(Usb *object)
-{
-    execQuery(INSERT_QUERY_STRING.arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name()));
-
-}*/
-
-/*void UsbRepository::update(Usb *object)
-{
-    execQuery(UPDATE_QUERY_STRING.arg(TABLE_NAME).arg(object->VID()).arg(object->PID()).arg(object->Serial()).arg(object->Name()).arg(object->ID()));
-}*/
-
-/*int UsbRepository::getIdAfterInsert()
-{
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
-    QString queryString = QString("SELECT id FROM %1;").arg(TABLE_NAME);
-    if (!query->exec(queryString))
-    {
-       query->last();
-       auto rec = query->record();
-       return query->value(rec.indexOf("id")).toInt();
-    }
-    else
-    {
-        throw std::runtime_error(query->lastError().text().toStdString());
-    }
-}*/
-
-
 QList<Usb *> UsbRepository::GetAll()
 {
     auto db = DbFacade::Instance();
@@ -125,4 +86,21 @@ void UsbRepository::Delete(Usb *object)
 {
     if (object->ID() != Usb::INVALID_ID)
         remove(object);
+}
+
+Usb *UsbRepository::GetByVIDandPID(QString VID, QString PID)
+{
+    auto db = DbFacade::Instance();
+    QSqlQuery *query = db->CreateQuery();
+    QString queryString = QString("SELECT * FROM %1 WHERE VID='%2' AND PID='%3';")\
+            .arg(TABLE_NAME).arg(VID).arg(PID);
+    if (!query->exec(queryString))
+        throw std::runtime_error(query->lastError().text().toStdString());
+    Usb *usb = Usb::Create();
+    usb->setID(query->value(0).toInt());
+    usb->setVID(query->value(1).toString());
+    usb->setPID(query->value(2).toString());
+    usb->setSerial(query->value(3).toString());
+    usb->setName(query->value(4).toString());
+    return usb;
 }

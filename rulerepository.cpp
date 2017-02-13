@@ -1,5 +1,7 @@
 #include "rulerepository.h"
 #include "rule.h"
+#include "host.h"
+#include "usb.h"
 
 RuleRepository *RuleRepository::instance = nullptr;
 
@@ -73,4 +75,22 @@ void RuleRepository::Delete(Rule *object)
 {
     if (object->ID() != Rule::INVALID_ID)
         remove(object);
+}
+
+Rule *RuleRepository::GetByHostAndUsb(Host *host, Usb *usb)
+{
+    if (host->ID() == Host::INVALID_ID || usb->ID() == Usb::INVALID_ID)
+        return Rule::Create();
+    auto db = DbFacade::Instance();
+    QSqlQuery *query = db->CreateQuery();
+    QString queryString = QString("SELECT * FROM %1 WHERE host_id='%2' AND usb_id='%3';")\
+            .arg(TABLE_NAME).arg(host->ID(), usb->ID());
+    if (!query->exec(queryString))
+        throw std::runtime_error(query->lastError().text().toStdString());
+    auto res = Rule::Create();
+    res->setID(query->value(0).toInt());
+    res->setHost_ID(query->value(1).toInt());
+    res->setUsb_ID(query->value(2).toInt());
+    res->setValue(query->value(4).toBool());
+    return res;
 }

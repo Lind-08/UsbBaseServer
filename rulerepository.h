@@ -2,6 +2,8 @@
 #include <QObject>
 #include "basesqlrepository.h"
 class Rule;
+class Host;
+class Usb;
 
 class RuleRepository : public QObject, BaseSqlRepository<Rule>
 {
@@ -28,4 +30,5 @@ public:
     QList<Rule *> GetAll();
     void Save(Rule *object);
     void Delete(Rule *object);
+    Rule *GetByHostAndUsb(Host *host, Usb *usb);
 };

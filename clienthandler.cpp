@@ -53,16 +53,23 @@ QJsonObject ClientHandler::authentiate(QJsonObject request)
 {
     QJsonObject answer;
     auto rep = HostRepository::Instance();
-    auto host = rep->GetBySecret(request["secret"]);
+    auto host = rep->GetBySecret(request["secret"].toString());
     if (host->ID() == Host::INVALID_ID)
     {
         answer["code"] = tr("ERROR_AUTH");
         answer["msg"] = tr("Unknown host");
     }
     else
+    if (host->Status())
+    {
+        answer["code"] = tr("ERROR_AUTH");
+        answer["msg"] = tr("Host already connected");
+    }
+    else
     {
         answer["code"] = tr("SUCCES");
     }
+    return answer;
 }
 
 void ClientHandler::processRequest(QJsonObject request)

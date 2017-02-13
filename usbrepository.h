@@ -21,12 +21,7 @@ class UsbRepository : public QObject, BaseSqlRepository<Usb>
     QString getQueryForID();
 
     static UsbRepository *instance;
-    //void execQuery(QString queryString);
 
-    //int getIdAfterInsert();
-    //void create(Usb *object);
-    //void update(Usb *object);
-    //void remove(Usb *object);
 protected:
     explicit UsbRepository(QObject *parent = 0);
 
@@ -35,5 +30,6 @@ public:
     QList<Usb*> GetAll();
     void Save(Usb *object);
     void Delete(Usb *object);
+    Usb *GetByVIDandPID(QString VID, QString PID);
 };
 
