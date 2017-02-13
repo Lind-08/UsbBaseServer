@@ -5,13 +5,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QTextStream>
-#include <QMutex>
 #include "hostrepository.h"
 #include "host.h"
 #include "rulerepository.h"
 #include "rule.h"
 #include "usbrepository.h"
 #include "usb.h"
+#include <QCryptographicHash>
 
 
 ClientHandler::ClientHandler(QTcpSocket *ClientSocket, QObject *parent):
@@ -78,16 +78,21 @@ QJsonObject ClientHandler::authentiate(QJsonObject request)
             answer["msg"] = tr("Host already connected");
         }
         else
+        {
+            machine = host;
+            host->setStatus(true);
+            rep->Save(host);
             answer["code"] = tr("SUCCES");
+        }
     }
+    return answer;
 }
 
 QJsonObject ClientHandler::getRule(QJsonObject request)
 {
-    //TODO: Добавить методы в репозитории для получения объектов данных
     QJsonObject answer;
     auto repUsb = UsbRepository::Instance();
-    auto usb = repUsb->GetByVIDandPID(request["VID"], request["PID"]);
+    auto usb = repUsb->GetByVIDandPID(request["VID"].toString(), request["PID"].toString());
     if (usb->ID() == Usb::INVALID_ID)
     {
         answer["code"] = tr("ERROR_USB");
@@ -95,10 +100,8 @@ QJsonObject ClientHandler::getRule(QJsonObject request)
         answer["value"] = false;
         return answer;
     }
-<<<<<<< Updated upstream
-=======
     auto repRule = RuleRepository::Instance();
-    auto rule = repRule->GetByHostAndUsb(host, usb);
+    auto rule = repRule->GetByHostAndUsb(machine, usb);
     if (rule->ID() == Rule::INVALID_ID)
     {
         answer["code"] = tr("ERROR_RULE");
@@ -108,31 +111,74 @@ QJsonObject ClientHandler::getRule(QJsonObject request)
     }
     answer["code"] = tr("SUCCES");
     answer["value"] = rule->Value();
->>>>>>> Stashed changes
+    answer["rules_hash"] = calculateRulesHash(machine);
     return answer;
+}
+
+QJsonObject ClientHandler::getRulesHash()
+{
+    QJsonObject answer;
+    answer["code"] = "SUCCES";
+    answer["rules_hash"] = calculateRulesHash(machine);
+    return answer;
+}
+
+QString ClientHandler::calculateRulesHash(Host *host)
+{
+    auto rep = RuleRepository::Instance();
+    auto rules = rep->GetByHost(host);
+    QCryptographicHash hash(QCryptographicHash::Md5);
+    if (!rules.empty())
+    {
+        for(auto rule: rules)
+        {
+            QByteArray array;
+            array.append(rule->ID());
+            array.append(rule->Host_ID());
+            array.append(rule->Usb_ID());
+            array.append(rule->Value());
+            hash.addData(array);
+        }
+    }
+    return QString(hash.result());
 }
 
 void ClientHandler::processRequest(QJsonObject request)
 {
     QJsonObject answer;
+    bool needDisconnect = false;
     answer["id"] = tr("server");
-    if (request["code"] == "HELLO")
+    QString code = request["code"].toString();
+    if (code == "HELLO")
     {
         answer = authentiate(request);
-        if (answer["code"] != tr("SUCCES"))
+        if (answer["code"].toString() != tr("SUCCES"))
         {
             sendClient(answer);
-            emit clientDisconnected();
+            needDisconnect = true;
         }
     }
     else
-    if (request["code"] == "GET_RULE")
+    if (code == "GET_RULE")
     {
-        anwer == getRule(request);
+        answer = getRule(request);
+    }
+    else
+    if (code == "GET_RULES_HASH")
+    {
+        answer = getRulesHash();
+    }
+    else
+    if (code == "BYE")
+    {
+        answer["code"] = "SEE_YOU";
+        needDisconnect = true;
     }
     else
     {
         answer["code"] = tr("ERROR_REQ");
     }
     sendClient(answer);
+    if (needDisconnect)
+        emit clientDisconnected();
 }

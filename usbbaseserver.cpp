@@ -33,7 +33,7 @@ void UsbBaseServer::StopWorking()
 
 void UsbBaseServer::onNewConnection()
 {
-    QTcpSocket *client = reinterpret_cast<QTcpSocket*>(sender());
+    QTcpSocket *client = listener->nextPendingConnection();
     ClientHandler *handler = new ClientHandler(client, this);
     handlers->push_back(handler);
     connect(handler, &ClientHandler::clientDisconnected, this, &UsbBaseServer::onClientDisconnected);

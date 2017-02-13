@@ -14,12 +14,14 @@ RuleRepository::RuleRepository(QObject *parent) :
 
 QString RuleRepository::getInsertQuery(Rule *object)
 {
-    return INSERT_QUERY_STRING.arg(TABLE_NAME).arg(object->Usb_ID()).arg(object->Host_ID()).arg(object->Value());
+    return INSERT_QUERY_STRING.arg(TABLE_NAME).arg(object->Usb_ID()).arg(object->Host_ID())\
+            .arg(object->Value());
 }
 
 QString RuleRepository::getUpdateQuery(Rule *object)
 {
-    return UPDATE_QUERY_STRING.arg(TABLE_NAME).arg(object->Usb_ID()).arg(object->Host_ID()).arg(object->Value()).arg(object->ID());
+    return UPDATE_QUERY_STRING.arg(TABLE_NAME).arg(object->Usb_ID()).arg(object->Host_ID())\
+            .arg(object->Value()).arg(object->ID());
 }
 
 QString RuleRepository::getDeleteQuery(Rule *object)
@@ -32,19 +34,9 @@ QString RuleRepository::getQueryForID()
     return BaseSqlRepository::GET_ID_QUERY.arg(TABLE_NAME);
 }
 
-RuleRepository *RuleRepository::Instance()
+QList<Rule *> RuleRepository::getList(QString queryString)
 {
-    if (instance == nullptr)
-        instance = new RuleRepository();
-    return instance;
-}
-
-QList<Rule *> RuleRepository::GetAll()
-{
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
-    if (!query->exec(getQueryForID()))
-        throw std::runtime_error(query->lastError().text().toStdString());
+    auto query = execQueryWithResult(queryString);
     QList<Rule*> result;
     do
     {
@@ -56,6 +48,18 @@ QList<Rule *> RuleRepository::GetAll()
         result.push_back(obj);
     } while(query->next());
     return result;
+}
+
+RuleRepository *RuleRepository::Instance()
+{
+    if (instance == nullptr)
+        instance = new RuleRepository();
+    return instance;
+}
+
+QList<Rule *> RuleRepository::GetAll()
+{
+    return getList(getQueryForID());
 }
 
 void RuleRepository::Save(Rule *object)
@@ -81,16 +85,33 @@ Rule *RuleRepository::GetByHostAndUsb(Host *host, Usb *usb)
 {
     if (host->ID() == Host::INVALID_ID || usb->ID() == Usb::INVALID_ID)
         return Rule::Create();
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
     QString queryString = QString("SELECT * FROM %1 WHERE host_id='%2' AND usb_id='%3';")\
-            .arg(TABLE_NAME).arg(host->ID(), usb->ID());
-    if (!query->exec(queryString))
-        throw std::runtime_error(query->lastError().text().toStdString());
+            .arg(TABLE_NAME).arg(host->ID()).arg(usb->ID());
+    auto query = execQueryWithResult(queryString);
     auto res = Rule::Create();
+    if (query->value(0).toInt() == 0)
+        query->next();
     res->setID(query->value(0).toInt());
     res->setHost_ID(query->value(1).toInt());
     res->setUsb_ID(query->value(2).toInt());
     res->setValue(query->value(4).toBool());
     return res;
+}
+
+QList<Rule *> RuleRepository::GetByHost(Host *host)
+{
+    if (host->ID() == Host::INVALID_ID)
+        return QList<Rule *>();
+    QString queryString = QString("SELECT * FROM %1 WHERE host_id='%2';")\
+            .arg(TABLE_NAME).arg(host->ID());
+    return getList(queryString);
+}
+
+QList<Rule *> RuleRepository::GetByUsb(Usb *usb)
+{
+    if (usb->ID() == Usb::INVALID_ID)
+        return QList<Rule *>();
+    QString queryString = QString("SELECT * FROM %1 WHERE usb_id='%2';")\
+            .arg(TABLE_NAME).arg(usb->ID());
+    return getList(queryString);
 }

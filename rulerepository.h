@@ -21,9 +21,11 @@ class RuleRepository : public QObject, BaseSqlRepository<Rule>
     QString getUpdateQuery(Rule *object);
     QString getDeleteQuery(Rule *object);
     QString getQueryForID();
+    QList<Rule *> getList(QString queryString);
 
     static RuleRepository *instance;
     explicit RuleRepository(QObject *parent = 0);
+
 
 public:
     static RuleRepository *Instance();
@@ -31,4 +33,8 @@ public:
     void Save(Rule *object);
     void Delete(Rule *object);
     Rule *GetByHostAndUsb(Host *host, Usb *usb);
+    QList<Rule *> GetByHost(Host *host);
+    QList<Rule *> GetByUsb(Usb *usb);
+
+
 };

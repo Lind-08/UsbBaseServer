@@ -3,7 +3,7 @@
                    NOT NULL,
     secret TEXT,
     name   TEXT,
-    status BOOLEAN DEFAULT FALSE
+    status BOOLEAN DEFAULT (0)
 );
 
 CREATE TABLE usb (
@@ -22,5 +22,5 @@ CREATE TABLE rules (
                                         ON UPDATE CASCADE,
     host_id INTEGER REFERENCES host (id) ON DELETE CASCADE
                                          ON UPDATE CASCADE,
-    value  BOOLEAN DEFAULT FALSE
+    value  BOOLEAN DEFAULT (0)
 );

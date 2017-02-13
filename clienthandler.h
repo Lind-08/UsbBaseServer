@@ -4,7 +4,7 @@
 
 class QTcpSocket;
 class QJsonObject;
-class QMutex;
+class Host;
 enum class ClientState;
 
 class ClientHandler : public QObject, public ILogMessagesCreator
@@ -12,6 +12,7 @@ class ClientHandler : public QObject, public ILogMessagesCreator
     Q_OBJECT
     QTcpSocket *clientSocket;
     ClientState state;
+    Host *machine;
     QString clientID;
 
     QJsonObject recieveMessage(QTcpSocket *clientSocket);
@@ -22,6 +23,9 @@ class ClientHandler : public QObject, public ILogMessagesCreator
 
     QJsonObject authentiate(QJsonObject request);
     QJsonObject getRule(QJsonObject request);
+    QJsonObject getRulesHash();
+
+    QString calculateRulesHash(Host *host);
 
 private slots:
     void readyRead();

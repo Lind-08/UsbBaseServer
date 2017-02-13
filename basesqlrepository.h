@@ -11,7 +11,7 @@ template <class T>
 class BaseSqlRepository : public IRepository<T>
 {
 protected:
-    const QString GET_ID_QUERY = "SELECT * FROM %1";
+    const QString GET_ID_QUERY = "SELECT id FROM %1 ORDER BY id DESC;";
 
     virtual QString getInsertQuery(T *object) = 0;
     virtual QString getUpdateQuery(T *object) = 0;
@@ -19,6 +19,7 @@ protected:
     virtual QString getQueryForID() = 0;
 
     void execQuery(QString queryString);
+    QSqlQuery *execQueryWithResult(QString queryString);
 
     void create(T *object);
     int getIdAfterInsert();
@@ -39,38 +40,42 @@ BaseSqlRepository<T>::BaseSqlRepository()
 template<class T>
 void BaseSqlRepository<T>::execQuery(QString queryString)
 {
+    auto query = execQueryWithResult(queryString);
+}
+
+template<class T>
+QSqlQuery *BaseSqlRepository<T>::execQueryWithResult(QString queryString)
+{
     auto db = DbFacade::Instance();
     QSqlQuery *query = db->CreateQuery();
     if(!query->exec(queryString))
     {
         throw std::runtime_error(query->lastError().text().toStdString());
     }
+    return query;
 }
 
 template<class T>
 void BaseSqlRepository<T>::create(T *object)
 {
     QString queryString = getInsertQuery(object);
-    execQuery(queryString);
+    execQueryWithResult(queryString);
 }
 
 template<class T>
 int BaseSqlRepository<T>::getIdAfterInsert()
 {
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
-    QString queryString = getQueryForID();
-    if (query->exec(queryString))
+    try
     {
-       query->last();
-       int result = query->value(0).toInt();
-       return result;
+        auto query = execQueryWithResult(getQueryForID());
+        if (query->value(0).toInt() == 0)
+            query->next();
+        int result = query->value(0).toInt();
+        return result;
     }
-    else
+    catch(...)
     {
-        QString error = query->lastError().text();
-        delete query;
-        throw std::runtime_error(error.toStdString());
+        return -1;
     }
 }
 
@@ -78,12 +83,12 @@ template<class T>
 void BaseSqlRepository<T>::update(T *object)
 {
     QString queryString = getUpdateQuery(object);
-    execQuery(queryString);
+    execQueryWithResult(queryString);
 }
 
 template<class T>
 void BaseSqlRepository<T>::remove(T *object)
 {
     QString queryString = getDeleteQuery(object);
-    execQuery(queryString);
+    execQueryWithResult(queryString);
 }

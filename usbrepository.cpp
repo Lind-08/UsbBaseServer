@@ -48,10 +48,7 @@ UsbRepository *UsbRepository::Instance()
 
 QList<Usb *> UsbRepository::GetAll()
 {
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
-    if (!query->exec(getQueryForID()))
-        throw std::runtime_error(query->lastError().text().toStdString());
+    auto query = execQueryWithResult(getQueryForID());
     QList<Usb*> result;
     do
     {
@@ -90,12 +87,9 @@ void UsbRepository::Delete(Usb *object)
 
 Usb *UsbRepository::GetByVIDandPID(QString VID, QString PID)
 {
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
     QString queryString = QString("SELECT * FROM %1 WHERE VID='%2' AND PID='%3';")\
             .arg(TABLE_NAME).arg(VID).arg(PID);
-    if (!query->exec(queryString))
-        throw std::runtime_error(query->lastError().text().toStdString());
+    auto query = execQueryWithResult(queryString);
     Usb *usb = Usb::Create();
     usb->setID(query->value(0).toInt());
     usb->setVID(query->value(1).toString());

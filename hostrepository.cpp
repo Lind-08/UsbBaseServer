@@ -24,7 +24,8 @@ QString HostRepository::getInsertQuery(Host *object)
 
 QString HostRepository::getUpdateQuery(Host *object)
 {
-    return UPDATE_QUERY_STRING.arg(TABLE_NAME).arg(object->Secret()).arg(object->Name()).arg(object->Status()).arg(object->ID());
+    return UPDATE_QUERY_STRING.arg(TABLE_NAME).arg(object->Secret()).arg(object->Name())\
+            .arg(object->Status()).arg(object->ID());
 }
 
 QString HostRepository::getDeleteQuery(Host *object)
@@ -39,10 +40,7 @@ QString HostRepository::getQueryForID()
 
 QList<Host *> HostRepository::GetAll()
 {
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
-    if (!query->exec(getQueryForID()))
-        throw std::runtime_error(query->lastError().text().toStdString());
+    auto query = execQueryWithResult(getQueryForID());
     QList<Host*> result;
     do
     {
@@ -77,14 +75,13 @@ void HostRepository::Delete(Host *object)
 
 Host *HostRepository::GetBySecret(QString secret)
 {
-    QString queryString = QString("SELECT * FROM %1 WHERE seret = '%2';").arg(TABLE_NAME).arg(secret);
-    auto db = DbFacade::Instance();
-    QSqlQuery *query = db->CreateQuery();
-    if (!query->exec(getQueryForID()))
-        throw std::runtime_error(query->lastError().text().toStdString());
+    QString queryString = QString("SELECT * FROM %1 WHERE secret='%2';").arg(TABLE_NAME).arg(secret);
+    auto query = execQueryWithResult(queryString);
     Host *obj = Host::Create();
     if (query->size() == 0)
         return obj;
+    if (query->value(0).toInt() == 0)
+        query->next();
     obj->setID(query->value(0).toInt());
     obj->setSecret(query->value(1).toString());
     obj->setName(query->value(2).toString());
