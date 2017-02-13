@@ -21,6 +21,7 @@ class ClientHandler : public QObject, public ILogMessagesCreator
     void sendClient(QJsonObject answer);
 
     QJsonObject authentiate(QJsonObject request);
+    QJsonObject getRule(QJsonObject request);
 
 private slots:
     void readyRead();

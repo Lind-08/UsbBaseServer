@@ -2,7 +2,8 @@
     id     INTEGER PRIMARY KEY AUTOINCREMENT
                    NOT NULL,
     secret TEXT,
-    name   TEXT
+    name   TEXT,
+    status BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE usb (

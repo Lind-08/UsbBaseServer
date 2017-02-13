@@ -8,6 +8,7 @@ class Host : public QObject
     PROPERTY_GS(qint32, ID, id)
     PROPERTY_GS(QString, Secret, secret)
     PROPERTY_GS(QString, Name, name)
+    PROPERTY_GS(bool, Status, status)
 private:
     explicit Host(QObject *parent = 0);
 public:

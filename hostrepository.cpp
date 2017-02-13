@@ -24,7 +24,7 @@ QString HostRepository::getInsertQuery(Host *object)
 
 QString HostRepository::getUpdateQuery(Host *object)
 {
-    return UPDATE_QUERY_STRING.arg(TABLE_NAME).arg(object->Secret()).arg(object->Name()).arg(object->ID());
+    return UPDATE_QUERY_STRING.arg(TABLE_NAME).arg(object->Secret()).arg(object->Name()).arg(object->Status()).arg(object->ID());
 }
 
 QString HostRepository::getDeleteQuery(Host *object)
@@ -50,6 +50,7 @@ QList<Host *> HostRepository::GetAll()
         obj->setID(query->value(0).toInt());
         obj->setSecret(query->value(1).toString());
         obj->setName(query->value(2).toString());
+        obj->setStatus(query->value(3).toBool());
         result.push_back(obj);
     } while(query->next());
     return result;
@@ -87,6 +88,7 @@ Host *HostRepository::GetBySecret(QString secret)
     obj->setID(query->value(0).toInt());
     obj->setSecret(query->value(1).toString());
     obj->setName(query->value(2).toString());
+    obj->setStatus(query->value(3).toBool());
     return obj;
 }
 
