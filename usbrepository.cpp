@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <QSqlRecord>
 #include "usb.h"
+#include <QDebug>
 
 UsbRepository* UsbRepository::instance = nullptr;
 
@@ -52,16 +53,15 @@ QList<Usb *> UsbRepository::GetAll()
     QList<Usb*> result;
     do
     {
+        if (!query->isValid())
+            query->next();
         Usb *obj = Usb::Create();
         obj->setID(query->value(0).toInt());
         obj->setVID(query->value(1).toString());
         obj->setPID(query->value(2).toString());
         obj->setSerial(query->value(3).toString());
         obj->setName(query->value(4).toString());
-        if (obj->ID() != 0)
-        {
-            result.push_back(obj);
-        }
+        result.push_back(obj);
     } while(query->next());
     return result;
 }
@@ -90,11 +90,17 @@ Usb *UsbRepository::GetByVIDandPID(QString VID, QString PID)
     QString queryString = QString("SELECT * FROM %1 WHERE VID='%2' AND PID='%3';")\
             .arg(TABLE_NAME).arg(VID).arg(PID);
     auto query = execQueryWithResult(queryString);
+    qDebug() << query->lastError().text();
+    auto rec = query->record();
     Usb *usb = Usb::Create();
-    usb->setID(query->value(0).toInt());
-    usb->setVID(query->value(1).toString());
-    usb->setPID(query->value(2).toString());
-    usb->setSerial(query->value(3).toString());
-    usb->setName(query->value(4).toString());
+    if (query->size() == 0)
+        return usb;
+    if (!query->isValid())
+        query->next();
+    usb->setID(query->value(rec.indexOf("id")).toInt());
+    usb->setVID(query->value(rec.indexOf("VID")).toString());
+    usb->setPID(query->value(rec.indexOf("PID")).toString());
+    usb->setSerial(query->value(rec.indexOf("serial")).toString());
+    usb->setName(query->value(rec.indexOf("name")).toString());
     return usb;
 }

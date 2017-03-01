@@ -44,6 +44,8 @@ QList<Host *> HostRepository::GetAll()
     QList<Host*> result;
     do
     {
+        if (!query->isValid())
+            query->next();
         Host *obj = Host::Create();
         obj->setID(query->value(0).toInt());
         obj->setSecret(query->value(1).toString());
@@ -80,7 +82,7 @@ Host *HostRepository::GetBySecret(QString secret)
     Host *obj = Host::Create();
     if (query->size() == 0)
         return obj;
-    if (query->value(0).toInt() == 0)
+    if (!query->isValid())
         query->next();
     obj->setID(query->value(0).toInt());
     obj->setSecret(query->value(1).toString());

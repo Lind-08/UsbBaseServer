@@ -40,6 +40,8 @@ QList<Rule *> RuleRepository::getList(QString queryString)
     QList<Rule*> result;
     do
     {
+        if (!query->isValid())
+            query->next();
         Rule *obj = Rule::Create();
         obj->setID(query->value(0).toInt());
         obj->setUsb_ID(query->value(1).toInt());
@@ -88,13 +90,14 @@ Rule *RuleRepository::GetByHostAndUsb(Host *host, Usb *usb)
     QString queryString = QString("SELECT * FROM %1 WHERE host_id='%2' AND usb_id='%3';")\
             .arg(TABLE_NAME).arg(host->ID()).arg(usb->ID());
     auto query = execQueryWithResult(queryString);
+    auto rec = query->record();
     auto res = Rule::Create();
-    if (query->value(0).toInt() == 0)
+    if (!query->isValid())
         query->next();
-    res->setID(query->value(0).toInt());
-    res->setHost_ID(query->value(1).toInt());
-    res->setUsb_ID(query->value(2).toInt());
-    res->setValue(query->value(4).toBool());
+    res->setID(query->value(rec.indexOf("id")).toInt());
+    res->setHost_ID(query->value(rec.indexOf("host_id")).toInt());
+    res->setUsb_ID(query->value(rec.indexOf("usb_id")).toInt());
+    res->setValue(query->value(rec.indexOf("value")).toBool());
     return res;
 }
 

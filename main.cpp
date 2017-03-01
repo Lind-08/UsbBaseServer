@@ -10,6 +10,8 @@
 #include <QDebug>
 #include <stdexcept>
 #include <QTextStream>
+#include <QFile>
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -19,7 +21,13 @@ int main(int argc, char *argv[])
     QObject::connect(server, &UsbBaseServer::logMessage, logger, &ConsoleOutLogger::onLogMessage);
     try
     {
-        DbFacade::InitDbFacade("QSQLITE", "usb_db.sqlite");
+        if (QFile::exists("usb_db.sqlite"))
+            DbFacade::InitDbFacade("QSQLITE", "usb_db.sqlite");
+        else
+        {
+            qDebug() << QObject::tr("Не найден файл базы данных");
+            return 0;
+        }
     }
     catch (std::exception &e)
     {

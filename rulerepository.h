@@ -11,7 +11,7 @@ class RuleRepository : public QObject, BaseSqlRepository<Rule>
 
     Q_OBJECT
 
-    const QString TABLE_NAME = "Rule";
+    const QString TABLE_NAME = "rules";
 
     const QString INSERT_QUERY_STRING = "INSERT INTO %1 (usb_id, host_id, value) VALUES ('%2','%3', '%4')";
     const QString UPDATE_QUERY_STRING = "UPDATE %1 SET usb_id='%2', host_id='%3', value='%4' where id=%5";

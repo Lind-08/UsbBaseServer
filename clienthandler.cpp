@@ -65,25 +65,17 @@ QJsonObject ClientHandler::authentiate(QJsonObject request)
         answer["msg"] = tr("Unknown host");
     }
     else
-    if (host->Status())
+    /*if (host->Status())
     {
         answer["code"] = tr("ERROR_AUTH");
         answer["msg"] = tr("Host already connected");
     }
-    else
+    else*/
     {
-        if (host->Status())
-        {
-            answer["code"] = tr("ERROR_AUTH");
-            answer["msg"] = tr("Host already connected");
-        }
-        else
-        {
-            machine = host;
-            host->setStatus(true);
-            rep->Save(host);
-            answer["code"] = tr("SUCCES");
-        }
+        machine = host;
+        host->setStatus(true);
+        rep->Save(host);
+        answer["code"] = tr("SUCCES");
     }
     return answer;
 }

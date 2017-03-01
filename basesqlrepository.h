@@ -68,7 +68,7 @@ int BaseSqlRepository<T>::getIdAfterInsert()
     try
     {
         auto query = execQueryWithResult(getQueryForID());
-        if (query->value(0).toInt() == 0)
+        if (!query->isValid())
             query->next();
         int result = query->value(0).toInt();
         return result;
